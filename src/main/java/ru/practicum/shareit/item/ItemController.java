@@ -3,8 +3,10 @@ package ru.practicum.shareit.item;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.transfer.New;
 import ru.practicum.shareit.validators.Validator;
 
 import java.util.List;
@@ -13,7 +15,6 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/items")
 public class ItemController {
-    private final Validator validator = new Validator();
     private final ItemServise itemServise;
 
 
@@ -30,12 +31,8 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity addItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                                  @RequestBody ItemDto itemDto) {
-        try {
-            validator.addItemValidation(itemDto);
-        } catch (ValidationException e) {
-            return ResponseEntity.badRequest().body(e);
-        }
+                                  @RequestBody @Validated(New.class) ItemDto itemDto) {
+
         log.debug("Добавлена запись о вещи {}", itemDto.getName());
         itemServise.add(userId, itemDto);
         return ResponseEntity.ok(itemServise.findItemByItemId(itemServise.findItemByOwnerIdAndItemName(userId, itemDto)));

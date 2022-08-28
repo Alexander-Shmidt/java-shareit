@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.transfer.New;
 import ru.practicum.shareit.transfer.UpdateName;
 import ru.practicum.shareit.validators.Validator;
 
@@ -15,7 +16,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final Validator validator = new Validator();
     private final UserService userService;
 
     @Autowired
@@ -29,12 +29,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity addUser(@RequestBody UserDto userDto) {
-        try {
-            validator.addOrUpdateUserValidation(userDto);
-        } catch (ValidationException e) {
-            return ResponseEntity.badRequest().body(e);
-        }
+    public ResponseEntity addUser(@RequestBody @Validated(New.class) UserDto userDto) {
         userService.save(userDto);
         log.debug("Добавлена запись о пользователе {}", userDto.getName());
         return ResponseEntity.ok(userService.getUserByName(userDto.getName()));
@@ -42,11 +37,6 @@ public class UserController {
 
    @PutMapping
     public ResponseEntity addOrUpdateUser(@Validated(UpdateName.class) @RequestBody UserDto userDto) {
-        try {
-            validator.addOrUpdateUserValidation(userDto);
-        } catch (ValidationException e) {
-            return ResponseEntity.status(404).body(e);
-        }
        log.debug("Изменена запись о пользователе {}", userDto.getName());
         userService.update(userDto);
         return ResponseEntity.ok(userDto);
@@ -65,9 +55,10 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity updateUser(@PathVariable long userId, @RequestBody UserDto userDto) {
+    public ResponseEntity updateUser(@PathVariable long userId,
+                                     @RequestBody UserDto userDto) {
         try {
-            validator.updateUserValidation(userDto);
+            Validator.updateUserValidation(userDto);
         } catch (ValidationException e) {
             return ResponseEntity.badRequest().body(e);
         }

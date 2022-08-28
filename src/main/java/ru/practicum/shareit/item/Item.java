@@ -1,10 +1,15 @@
 package ru.practicum.shareit.item;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
-// @Entity
+@Getter
+@Setter
+@EqualsAndHashCode
 public class Item implements Serializable {
-   // @Id
     private Long id; // уникальный идентификатор вещи
     private String name; // краткое название
     private String description; // развёрнутое описание
@@ -31,59 +36,6 @@ public class Item implements Serializable {
         this.description = description;
         this.available = available;
         this.owner = owner;
-        this.idRequest = idRequest;
-    }
-
-    //@Id
-    //@GeneratedValue
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    //@Column(nullable = false)
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    //@Column
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    //@Column
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
-    }
-
-    public long getOwner() {
-        return owner;
-    }
-
-    public void setOwner(long owner) {
-        this.owner = owner;
-    }
-
-    public Long getIdRequest() {
-        return idRequest;
-    }
-
-    public void setIdRequest(Long idRequest) {
         this.idRequest = idRequest;
     }
 }

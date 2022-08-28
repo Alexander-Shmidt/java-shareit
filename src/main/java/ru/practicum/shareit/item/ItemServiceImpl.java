@@ -66,7 +66,7 @@ public class ItemServiceImpl implements ItemServise {
         if (text == null || text.isEmpty()) return searchList;
         for (Item item : itemRepository.findAll()) {
             if ((item.getName().toLowerCase().contains(text.toLowerCase()) ||
-                    item.getDescription().toLowerCase().contains(text.toLowerCase())) && item.isAvailable()) {
+                    item.getDescription().toLowerCase().contains(text.toLowerCase())) && item.getAvailable()) {
                 searchList.add(ItemMapper.toItemDto(item));
             }
         }
