@@ -1,17 +1,12 @@
 package ru.practicum.shareit.item;
 
-import java.util.Optional;
+import org.springframework.data.repository.CrudRepository;
 
-public interface ItemRepository {
-    <S extends Item> S save(S entity);
+import java.util.List;
 
-    Iterable<Item> findAll();
+public interface ItemRepository extends CrudRepository<Item, Long> {
+    List<Item> findItemsByOwner(Long owner);
+    Item findItemByOwner(Long owner);
 
-    Optional<Item> findById(Long itemId);
-
-    boolean existsById(Long aLong);
-
-    boolean findOwner(Long owner);
-
-    void update(Long itemId, Item item);
+    Long findItemByOwnerAndName(Long owner, String name);
 }

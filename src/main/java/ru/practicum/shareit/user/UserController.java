@@ -18,13 +18,12 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public Iterable<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
@@ -32,7 +31,7 @@ public class UserController {
     public ResponseEntity addUser(@RequestBody @Validated(New.class) UserDto userDto) {
         userService.save(userDto);
         log.debug("Добавлена запись о пользователе {}", userDto.getName());
-        return ResponseEntity.ok(userService.getUserByName(userDto.getName()));
+        return ResponseEntity.ok(userService.findUserByName(userDto.getName()));
     }
 
    @PutMapping

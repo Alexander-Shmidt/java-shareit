@@ -12,7 +12,7 @@ public interface ItemServise {
 
     void update(long userId, Long itemId, ItemDto itemDto);
 
-    List<ItemDto> findItemsByOwner(long userId);
+    List<Item> findItemsByOwnerOnly(long userId);
 
-    List<ItemDto> findTextByNameOrDescription(String text);
+    List<Item> findTextByNameOrDescription(String text);
 }

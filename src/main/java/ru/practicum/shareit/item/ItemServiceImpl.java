@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -14,19 +15,22 @@ import java.util.List;
 public class ItemServiceImpl implements ItemServise {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private long idItem = 0;
+    private final BookingRepository bookingRepository;
 
-    public ItemServiceImpl(@Autowired ItemRepository itemRepository, UserRepository userRepository) {
+    public ItemServiceImpl(@Autowired ItemRepository itemRepository, UserRepository userRepository,
+                           BookingRepository bookingRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Override
     public void add(Long userId, ItemDto itemDto) {
-        if (!userRepository.existsById(userId)) throw new UserNotFoundException("Владелец вещи не обнаружен");
-        idItem = makeIdItem();
-        Item item = ItemMapper.toItem(idItem, itemDto, userId);
-        itemRepository.save(item);
+        if (userRepository.existsById(userId)){
+            Item item = ItemMapper.toItem(itemDto, userId);
+            itemRepository.save(item);
+        }
+
     }
 
     @Override
@@ -37,11 +41,11 @@ public class ItemServiceImpl implements ItemServise {
 
     @Override
     public Long findItemByOwnerIdAndItemName(Long owner, ItemDto itemDto) {
-        if (!itemRepository.findOwner(owner)) {
+        if (itemRepository.findItemsByOwner(owner).isEmpty()) {
             throw new ValidationException("Владелец вещи не обнаружен");
         }
-        for (Item item : itemRepository.findAll()) {
-            if (item.getOwner() == owner && item.getName().equals(itemDto.getName())) {
+        for (Item item : itemRepository.findItemsByOwner(owner)) {
+            if (item.getName().equals(itemDto.getName())) {
                 return item.getId();
             }
         }
@@ -49,25 +53,21 @@ public class ItemServiceImpl implements ItemServise {
     }
 
     @Override
-    public List<ItemDto> findItemsByOwner(long owner) {
-        if (!itemRepository.findOwner(owner)) {
+    public List<Item> findItemsByOwnerOnly(long owner) {
+        if (itemRepository.findItemsByOwner(owner).isEmpty()) {
             throw new ValidationException("Владелец вещи не обнаружен");
         }
-        List<ItemDto> itemDtos = new ArrayList<>();
-        for (Item item : itemRepository.findAll()) {
-            if (item.getOwner() == owner) itemDtos.add(ItemMapper.toItemDto(item));
-        }
-        return itemDtos;
+        return itemRepository.findItemsByOwner(owner);
     }
 
     @Override
-    public List<ItemDto> findTextByNameOrDescription(String text) {
-        List<ItemDto> searchList = new ArrayList<>();
+    public List<Item> findTextByNameOrDescription(String text) {
+        List<Item> searchList = new ArrayList<>();
         if (text == null || text.isEmpty()) return searchList;
         for (Item item : itemRepository.findAll()) {
             if ((item.getName().toLowerCase().contains(text.toLowerCase()) ||
                     item.getDescription().toLowerCase().contains(text.toLowerCase())) && item.getAvailable()) {
-                searchList.add(ItemMapper.toItemDto(item));
+                searchList.add(item);
             }
         }
         return searchList;
@@ -86,16 +86,6 @@ public class ItemServiceImpl implements ItemServise {
             if (itemDto.getDescription() != null) item.setDescription(itemDto.getDescription());
             if (itemDto.getAvailable() != null) item.setAvailable(itemDto.getAvailable());
         } else throw new UserNotFoundException("Вещь не принадлежит этому владельцу");
-        itemRepository.update(itemId, item);
-    }
-
-
-    private Long makeIdItem() {
-        if (idItem == 0) {
-            idItem = 1;
-        } else {
-            idItem++;
-        }
-        return idItem;
+        itemRepository.save(item);
     }
 }

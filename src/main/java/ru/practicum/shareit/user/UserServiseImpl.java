@@ -1,39 +1,29 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import javax.transaction.Transactional;
+import java.util.Optional;
 
 @Service
 public class UserServiseImpl implements UserService {
     private final UserRepository userRepository;
-    private long id = 0;
 
-    @Autowired
     public UserServiseImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     @Override
-    public List<User> getAllUsers() {
-
-        return new ArrayList<>((Collection<? extends User>) userRepository.findAll());
+    public Iterable<User> getAllUsers() {
+        return  userRepository.findAll();
     }
 
     @Override
     public void save(UserDto userDto) {
-        for (User user1 : userRepository.findAll()) {
-            if (user1.getEmail().equals(userDto.getEmail())) {
-                throw new ValidationException("Пользователь с такой почтой уже зарегистрирован");
-            }
-        }
-        id = makeId();
-        User user = UserMapper.toUser(userDto, id);
+        User user = UserMapper.toUser(userDto);
         userRepository.save(user);
     }
 
@@ -64,7 +54,7 @@ public class UserServiseImpl implements UserService {
                 user.setEmail(userDto.getEmail());
             }
         }
-        userRepository.update(user, user.getId());
+        userRepository.save(user);
     }
 
     @Override
@@ -83,26 +73,12 @@ public class UserServiseImpl implements UserService {
             if (!(userDto.getName() == null || userDto.getName().isBlank())) {
                 user.setName(userDto.getName());
             }
-            userRepository.update(user, userId);
+            userRepository.save(user);
         } else throw new UserNotFoundException("Пользователь с таким Id не найден");
     }
 
     @Override
-    public User getUserByName(String name) {
-        for (User user1 : userRepository.findAll()) {
-            if (user1.getName().equals(name)) {
-                return getUser(user1.getId());
-            }
-        }
-        return null;
-    }
-
-    private Long makeId() {
-        if (id == 0) {
-            id = 1;
-        } else {
-            id++;
-        }
-        return id;
+    public Optional<User> findUserByName(String name) {
+        return userRepository.findUserByName(name);
     }
 }

@@ -5,9 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.transfer.New;
-import ru.practicum.shareit.validators.Validator;
 
 import java.util.List;
 
@@ -24,9 +22,9 @@ public class ItemController {
 
 
     @GetMapping // Просмотр всех вещей только их владельцем
-    public List<ItemDto> viewAllByOwner(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<Item> viewAllByOwner(@RequestHeader("X-Sharer-User-Id") long userId) {
 
-        return itemServise.findItemsByOwner(userId);
+        return itemServise.findItemsByOwnerOnly(userId);
     }
 
     @PostMapping
@@ -48,11 +46,11 @@ public class ItemController {
 
     @GetMapping("/{itemId}") // Просмотр информации о вещи. Доступно всем пользователям
     public ResponseEntity viewItem(@PathVariable Long itemId) {
-        return ResponseEntity.ok(ItemMapper.toItemDto(itemServise.findItemByItemId(itemId)));
+        return ResponseEntity.ok(itemServise.findItemByItemId(itemId));
     }
 
     @GetMapping("/search") // Текст для поиска ищется в названии или описании
-    public List<ItemDto> searchItems(@RequestParam String text) {
+    public List<Item> searchItems(@RequestParam String text) {
 
         return itemServise.findTextByNameOrDescription(text);
     }

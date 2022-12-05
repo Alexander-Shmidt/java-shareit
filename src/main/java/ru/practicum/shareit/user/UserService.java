@@ -1,9 +1,10 @@
 package ru.practicum.shareit.user;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
-    List<User> getAllUsers();
+    Iterable<User> getAllUsers();
 
     void save(UserDto userDto);
 
@@ -15,5 +16,5 @@ public interface UserService {
 
     void update(UserDto userDto, long userId);
 
-    User getUserByName(String name);
+    Optional<User> findUserByName(String name);
 }

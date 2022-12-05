@@ -22,4 +22,5 @@ public class UserDto {
     @Email(groups = {New.class},message = "Проверьте корректность ввода e-mail")
     @Null(groups = {UpdateName.class})
     private String email; // адрес электронной почты
+
 }
